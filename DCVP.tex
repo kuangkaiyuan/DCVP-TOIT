@@ -15,7 +15,7 @@
 
 % Package to generate and customize Algorithm as per ACM style
 
-\usepackage[colorlinks,bookmarksopen,bookmarksnumbered,citecolor=red,urlcolor=red]{hyperref}
+\usepackage[colorlinks,bookmarksopen,bookmarksnumbered,citecolor=black,urlcolor=red]{hyperref}
 \usepackage{array}
 \usepackage{graphicx}
 %\usepackage{caption}
@@ -91,8 +91,7 @@ ZHENG WANG
 \begin{abstract}
 Code virtualization built upon virtual machine (VM)
 technologies are emerging as a viable method for implementing
-code obfuscation to protect programs against unauthorized
-analysis.
+code obfuscation to protect programs against unauthorized analysis.
 State-of-the-art VM-based protection approaches use a fixed set of virtual
 instructions and bytecode interpreters across programs. This allows an
 experienced attacker to use knowledge extracted from other programs to
@@ -121,31 +120,31 @@ stronger protection at the cost of little extra overhead.
 <ccs2012>
  <concept>
   <concept_id>10010520.10010553.10010562</concept_id>
-  <concept_desc>Computer systems organization~Embedded systems</concept_desc>
+  <concept_desc>Security and privacy~Software security engineering</concept_desc>
   <concept_significance>500</concept_significance>
  </concept>
  <concept>
   <concept_id>10010520.10010575.10010755</concept_id>
-  <concept_desc>Computer systems organization~Redundancy</concept_desc>
+  <concept_desc>Security and privacy~Software reverse engineering</concept_desc>
   <concept_significance>300</concept_significance>
  </concept>
- <concept>
-  <concept_id>10010520.10010553.10010554</concept_id>
-  <concept_desc>Computer systems organization~Robotics</concept_desc>
-  <concept_significance>100</concept_significance>
- </concept>
- <concept>
-  <concept_id>10003033.10003083.10003095</concept_id>
-  <concept_desc>Networks~Network reliability</concept_desc>
-  <concept_significance>100</concept_significance>
- </concept>
+ %<concept>
+  %<concept_id>10010520.10010553.10010554</concept_id>
+  %<concept_desc>Computer systems organization~Robotics</concept_desc>
+  %<concept_significance>100</concept_significance>
+ %</concept>
+ %<concept>
+  %<concept_id>10003033.10003083.10003095</concept_id>
+  %<concept_desc>Networks~Network reliability</concept_desc>
+  %<concept_significance>100</concept_significance>
+ %</concept>
 </ccs2012>
 \end{CCSXML}
 
-\ccsdesc[500]{Computer systems organization~Embedded systems}
-\ccsdesc[300]{Computer systems organization~Redundancy}
-\ccsdesc{Computer systems organization~Robotics}
-\ccsdesc[100]{Networks~Network reliability}
+\ccsdesc[500]{Security and privacy~Software security engineering}
+\ccsdesc[300]{Security and privacy~Software reverse engineering}
+%\ccsdesc{Security and privacy~Robotics}
+%\ccsdesc[100]{Networks~Network reliability}
 
 %
 % End generated code
@@ -214,26 +213,28 @@ Most of them increase the diversity of program behaviour by obfuscating the hand
 
 \begin{figure}[!t]
 \centering
-\includegraphics[width=0.8\columnwidth]{fig/figone.pdf}
-\caption{The process of reusing attacking knowledge for code reverse engineering. Here we have four different target programs, A, B, C and D. In the first scenario, all programs are obfuscated using fixed semantic and structural features.
-This allows an attacker to reuse knowledge obtained from attacking one program to perform code reverse engineering of other programs. In the second scenario, the protection system ensures that different programs have different semantic and structural features.
-In this way, the attacker will not be able to reuse the previously extracted knowledge to perform attacks across programs.}
+\includegraphics[width=0.75\columnwidth]{fig/figone.pdf}
+\caption{The process of reusing attacking knowledge for code reverse engineering. 
+Here we have four different target programs, A, B, C and D. 
+In the right side of the scenario, all programs are obfuscated using fixed semantic and structural features.
+This allows an analyst to reuse knowledge obtained from attacking one program to perform code reverse engineering of other programs. 
+In another scenario, the protection system ensures that different programs have different semantic and structural features.
+In this way, the analyst will not be able to reuse the previously extracted knowledge to perform reverse analysis across programs.}
 \label{fig:one}
 \end{figure}
 
-Figure~\ref{fig:one} depicts an attacking scenario where an attacker can
-resue the \textit{analysis knowledge} to attack applications protected by
+Figure~\ref{fig:one} depicts an reverse analysis scenario where an analyst can
+reuse the \textit{analysis knowledge} to attack applications protected by
 VM-based code obfuscation. In this example, there are four different programs
-to be protected, which are labelled as A, B, C and D. In the first scenario,
+to be protected, which are labelled as A, B, C and D. In the right side of the scenario,
 all the four programs are protected using an identical set of virtual
-instructions and bytecode handlers. Under such settings, an experienced attacker should be able to
-quickly reverse-engineer three programs by using the knowledge obtained from attacking one
-of the programs.
-In the second scenario, the protection system uses
+instructions and bytecode handlers. Under such settings, an experienced analyst should be able to
+quickly reverse-engineer three programs by using the knowledge obtained from attacking one of the programs.
+In another scenario, the protection system uses
 different protection schemes for different programs, so that they have
 different semantics and structural features across programs, so that the
 knowledge obtained from one program will be in unapplicable to others.
-This forces the attacker to start from the scratch when attacking each individual program.
+This forces the analyst to start from the scratch when reverse engineering each individual program.
 
 
 To mitigate the effect of reuse of \textit{analysis knowledge}, we propose DCVP (Code Virtualization Protection with Diversity), a enhanced VM-based code obfuscation system that obscures the semantics of bytecode instructions.
@@ -247,16 +248,55 @@ Of course, we have to admit that some malware authors also will use the above co
 The key contribution of this paper is a countermeasure to address the issue of reusing \textit{analysis knowledge} to perform code reverse engineering across programs. This is achieved by first partitioning the bytecode programs into several parts and randomizeing the semantics of bytecode instructions in each part in different ways.
 We compare our approach against VMProtect~\cite{vmp} and Themida~\cite{Themida} on \texttt{md5.exe}, \texttt{gzip.exe}, \texttt{bcrypt.exe} and \texttt{mat\underline{ }mul.exe} applications. Experimental results show that DCVP is able to provide stronger protection at the cost of little extra overhead.
 
-The rest of the paper is organized as follows. In Section II, we illustrate the internals of VM-based obfuscation. Section III gives our threat model, which describes the analyst's capabilities and goals, and we illustrate the process of reverse engineering a VM-obfuscated program. In Section IV, V, VI and VII, we present the details of DCVP. Section VIII evaluates DCVP for its effectiveness and its spatial and temporal overhead. Section IX presents the related work, and Section X presents the conclusion and discusses the future work.
+The rest of the paper is organized as follows. 
+In Section~\ref{sec:background}, we illustrate the internals of VM-based obfuscation. 
+Section~\ref{sec:threat-model} gives our threat model, which describes the analyst's capabilities and goals, 
+and we illustrate the process of reverse engineering a VM-obfuscated program. 
+In Section~\ref{sec:overview},~\ref{sec:VIS-Handlers},~\ref{sec:NI-VI} 
+and~\ref{sec:VI-Bytecode}, we present the details of DCVP.
+Section~\ref{sec:evaluation} evaluates DCVP for its effectiveness and its spatial and temporal overhead. Section~\ref{sec:related} presents the related work, and finally presents the conclusion and discusses the future work.
 % Head 1
 
 
 
 \section{Background}\label{sec:background}
-Virtualization technique has been used in many fields, e.g. virtual memory for resource virtualization, VMware and VirtualBox for CPU virtualization, and Java bytecode and .Net CIL for application virtualization. This paper discusses another application of virtulization technique in protecting software programs from unauthorized analyses, namely code virtualized obfuscation or VM-based obfuscation, like VMProtect \cite{vmp} and Code Virtualizer \cite{cv}. As software does not have uniform security requirements throughout its execution \cite{geneiatakis2012adaptive} and protecting the whole program is too costly, code virtualized obfuscation usually protects only the critical part(s) of the whole software program, which could be a critical algorithm or a processing logic. VM-based obfuscation protects a target program by transforming its native machine code into bytecode for a self-defined virtual instruction set architecture. At runtime, the execution instruction semantics of the original program are fulfilled by a native interpreter bundled with the bytecode. In this section, we will look into the internal working mechanism of VM-based obfuscation.
+Virtualization technique has been used in many fields, e.g. 
+virtual memory for resource virtualization, VMware and VirtualBox for CPU virtualization, 
+and Java bytecode and .Net CIL for application virtualization. 
+This paper discusses another application of virtulization technique 
+in protecting software programs from unauthorized analyses, 
+namely code virtualized obfuscation or VM-based obfuscation, 
+like VMProtect \cite{vmp} and Code Virtualizer \cite{cv}. 
+As software does not have uniform security requirements throughout its execution \cite{geneiatakis2012adaptive} 
+and protecting the whole program is too costly, 
+code virtualized obfuscation usually protects only the critical part(s) of the whole software program, 
+which could be a critical algorithm or a processing logic. 
+VM-based obfuscation protects a target program by transforming its native machine code into bytecode 
+for a self-defined virtual instruction set architecture. 
+At runtime, the execution instruction semantics of the original program are fulfilled 
+by a native interpreter bundled with the bytecode. 
+In this section, we will look into the internal working mechanism of VM-based obfuscation.
 
 %\subsection{The Internals of VM-based Obfuscation}
-Figure \ref{fig:vmprotection} shows the architecture of a VM-based obfuscation system. The core of a VM-based obfuscation are the virtual IS (Instruction Set) and the native interpreter. Virtual instructions are used to emulate native instructions. It is required that virtual IS be able to emulate all the semantics of native IS, or formally speaking, virtual IS should be Turing-equivalent to the native IS. The native interpreter is to fetch and execute bytecode instructions. It follows the \textit{decode-dispatch} approach \cite{ghosh2012replacement}, and consists of a bundle of \texttt{handlers} and a \texttt{VMloop}. \texttt{VMloop} is the main \textit{decode-dispatch} loop and for each loop, \texttt{VMloop} fetches a bytecode instruction, decodes it, and dispatches a \texttt{Handler} to interpret it. Different from native instructions, bytecode instructions are specific for a virtual context, namely \texttt{VMcontext}, which contains the virtual registers and flags. Virtual registers and flags are related to the native registers and flags. At runtime, \texttt{VMinit} first saves native context and uses them to initialize the virtual context. In the simplest implementation, the virtual context could be a block of memory and stores the exact values of the native context; this could be more complex \cite{falliere2009inside}, but it should be guaranteed that the converting between native context and virtual context is reversible, since \texttt{VMexit} will restore the native context from the virtual context upon exiting the virtual interpreter.
+Figure \ref{fig:vmprotection} shows the architecture of a VM-based obfuscation system. 
+The core of a VM-based obfuscation are the virtual IS (Instruction Set) and the native interpreter. 
+Virtual instructions are used to emulate native instructions. 
+It is required that virtual IS be able to emulate all the semantics of native IS, 
+or formally speaking, virtual IS should be Turing-equivalent to the native IS. 
+The native interpreter is to fetch and execute bytecode instructions. 
+It follows the \textit{decode-dispatch} approach \cite{ghosh2012replacement}, 
+and consists of a bundle of \texttt{handlers} and a \texttt{VMloop}. 
+\texttt{VMloop} is the main \textit{decode-dispatch} loop and for each loop, 
+\texttt{VMloop} fetches a bytecode instruction, decodes it, and dispatches a \texttt{Handler} to interpret it. 
+Different from native instructions, bytecode instructions are specific for a virtual context, 
+namely \texttt{VMcontext}, which contains the virtual registers and flags. 
+Virtual registers and flags are related to the native registers and flags. 
+At runtime, \texttt{VMinit} first saves native context and uses them to initialize the virtual context. 
+In the simplest implementation, the virtual context could be a block of memory 
+and stores the exact values of the native context; 
+this could be more complex \cite{falliere2009inside}, 
+but it should be guaranteed that the converting between native context and virtual context is reversible, 
+since \texttt{VMexit} will restore the native context from the virtual context upon exiting the virtual interpreter.
 
 
 \begin{figure}[!t]
@@ -303,7 +343,7 @@ The first type of attack method based on virtual execution is closely related to
 
 
 
-\section{Design Details}
+\section{Design Details}\label{sec:overview}
 As we have described, the reuse of \textit{analysis knowledge} about the semantics of bytecode instructions can save an analyst much time and effort. Since the longer the software stay uncompromised, the more benefit the software authors will get, the naive idea to harden code virtualized obfuscation is to disable the \textit{analysis knowledge} and force analysts to analyze the obfuscated software programs from scratch. Our solution is randomizing the relationships between the bytecode instructions and their semantics for each obfuscation instance. In this section, we will present the details about our solution. For better understanding, we will start from the design of virtual IS and \texttt{handlers}.
 
 \paragraph{Virtual IS and Handlers}
@@ -480,7 +520,7 @@ VI                           & Handler      \\ \hline \hline %\raisebox{1.0ex}[0
 \subsection{Other Instructions}
 The above three categories cover the commonly used instructions. Although the other native instructions are rarely used, such as \texttt{bts}, \texttt{enter}, \texttt{int n}, and \texttt{out}, our native IS should consider them too. For these instructions, we define a special virtual instruction - \texttt{undef}. At runtime, when encountering such an instruction, it first restores the native context and exits the VM. Then, it executes that native instruction in native context and finally re-enters the VM and continues to execute the left bytecode instructions. The \textit{indirect branches} are also processed in this way.
 
-\begin{table}[!ht]
+\begin{table}[!t]
 \renewcommand{\arraystretch}{1.1}
 \tbl{Examples of Native Instructions and Their Corresponding Virtual Instructions.\label{tab:native2virtual}}{
 \begin{tabular}{|l|l|}
@@ -547,22 +587,24 @@ To frustrate the inferences based on the frequencies of \textit{opcodes}, we par
 \begin{algorithm}
 \caption{Partition Bytecode Program}
 \begin{algorithmic}[1]
-\REQUIRE VIs of critical code segment, partition number \emph{N}
-\ENSURE Bytecode program with \emph{N} partition
-\STATE Apply memory space M
-\STATE VIs randomly divided into \emph{N} partitions
-\STATE Generate \emph{N} sets of \texttt{handlers} by using algorithm~\ref{Alg:obfuscation}
+\REQUIRE VIs of critical code segment, partition number \emph{N}.
+\ENSURE Bytecode program with \emph{N} partition.
+\STATE Apply memory space M;
+\STATE VIs randomly divided into \emph{N} partitions;
+\STATE Generate \emph{N} sets of \texttt{handlers} by using algorithm~\ref{Alg:obfuscation};
 \WHILE {$N \neq 0$}
-\STATE Take a partition
-\STATE Randomly select a set of \texttt{handlers} and shuffle the IDs of virtual instructions
-\STATE Build a corresponding HAT.
-\STATE Use the shuffle results to encode bytecode program P.
-\STATE Store the P to M
-\STATE \emph{N} decrement operation
+\STATE Take a partition;
+\STATE Randomly select a set of \texttt{handlers} and shuffle the IDs of virtual instructions;
+\STATE Build a corresponding HAT;
+\STATE Use the shuffle results to encode bytecode program P;
+\STATE Store the P to M;
+%\STATE \emph{N} decrement operation
+\STATE $N--$ ;
 \ENDWHILE
 \end{algorithmic}
 \label{Alg:partition}
 \end{algorithm}
+
 
 Algorithm~\ref{Alg:partition} demonstrated the implementation of the partition encoding. Partition the bytecode program, we will randomly divide virtual instructions into \emph{N} partitions and obfuscate the original HAS (Handler Set) for N times to get N sets of \texttt{handlers}, and the detailed HAS obfusction approach are demonstrated in section~\ref{sec:multi-handler}. For each partition, we will randomly select one set of \texttt{handlers} and shuffle the IDs of virtual IS, and then use the results to encode the VIs into a specific bytecode program. In the end, a complete bytecode program is generated, which has multiple partitions and the same bytecode has different semantics in different partitions. These specific bytecodes only can be can be interpreted by system's virtual interpreter. %which contains \texttt{VMloop}, HAT and HAS.
 
@@ -599,20 +641,21 @@ To further impede automated reverse analysis, we can obfuscate the \texttt{handl
 \begin{algorithm}
 \caption{Virtual Interpreter Obfuscation}
 \begin{algorithmic}[1]
-\REQUIRE The original HAS, partition number \emph{N}
-\ENSURE \emph{N} equivalent HASs with different forms
+\REQUIRE The original HAS, partition number \emph{N}.
+\ENSURE \emph{N} equivalent HASs with different forms.
 \WHILE {$N \neq 0$}
-\STATE Apply memory space M1
-\STATE Take the first \texttt{handler} from HAS
+\STATE Apply memory space M1;
+\STATE Take the first \texttt{handler} from HAS;
 \WHILE {There are still untreated \texttt{handler}}
-\STATE Randomly select multiple obfuscation methods and using order of them
-\STATE Obfuscate \texttt{handler} and store the results to M1
-\STATE Take the next \texttt{handler} from HAS
+\STATE Randomly select multiple obfuscation methods and using order of them;
+\STATE Obfuscate \texttt{handler} and store the results to M1;
+\STATE Take the next \texttt{handler} from HAS;
 \ENDWHILE
-\STATE Apply memory space M2
-\STATE Using the anti-taint analysis technique to protect the code in M1
-\STATE Store the results to M2, and release the memory space of M1
-\STATE \emph{N} decrement operation
+\STATE Apply memory space M2;
+\STATE Using the anti-taint analysis technique to protect the code in M1;
+\STATE Store the results to M2, and release the memory space of M1;
+%\STATE \emph{N} decrement operation
+\STATE $N--$ ;
 \ENDWHILE
 \end{algorithmic}
 \label{Alg:obfuscation}
@@ -654,7 +697,7 @@ As we can see from Figure~\ref{fig:anti-taint}-(c). The indirect transfer of sta
 The above three methods can effectively prevent the spread of tainted data by laundering tainted data, and then can effectively resist the taint analysis.
 
 
-\section{Evaluation}
+\section{Evaluation}\label{sec:evaluation}
 In this section, we will evaluate the effectiveness of our method for mitigating the
 effect of reuse of \textit{analysis knowlege} and the spatial and temporal overhead of our method.
 
@@ -801,7 +844,7 @@ We also put the four target programs together and count the average frequencies 
 Finally, we use two commercial code virtualization protection system for comparison, VMProtect~\cite{vmp} and Themida~\cite{Themida}. Figure~\ref{fig:filecom} shows the impact of the three virtualization protection system on the file size of the four target programs. The cost of Themida is much greater than the other two system, and the impact of DCVP and VMProtect is similar. This result should be related to the design of virtual instructions and \texttt{handlers}. Runtime overhead as shown in Figure~\ref{fig:timecom}. In general, the effects of the three protection systems are similar. Special, the runtime overhead of \texttt{bcrypt} that protected by Themida is far greater than the other target programs.
 
 
-\section{Related Work}
+\section{Related Work}\label{sec:related}
 Software protection is used to protect the intellectual property encapsulated within software programs
 from been understood and modified, by transforming target program into a more obscure and hard-understanding one.
 The earliest published works in software protection can be traced back to 1980,

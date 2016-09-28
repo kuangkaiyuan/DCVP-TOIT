@@ -15,7 +15,7 @@
 
 % Package to generate and customize Algorithm as per ACM style
 
-\usepackage[colorlinks,bookmarksopen,bookmarksnumbered,citecolor=black,urlcolor=red]{hyperref}
+\usepackage[colorlinks,bookmarksopen,bookmarksnumbered,citecolor=blue,urlcolor=red]{hyperref}
 \usepackage{array}
 \usepackage{graphicx}
 %\usepackage{caption}
@@ -177,7 +177,7 @@ modification~\cite{barak2001possibility,lynn2004positive,linn2003obfuscation,pre
 
 
 Code virtualization based on a virtual machine (VM) is
-emerging as a promising way for implementing code obfuscation~\cite{cv,vmp,Themida,fang2011multi,wang2014tdvmp,wang2013nislvmp}.
+emerging as a promising way for implementing code obfuscation~\cite{cv,vmp,Themida,fang2011multi,6ming2011software,wang2013nislvmp,wang2014tdvmp}.
 The underlying principal of VM-based protection is to replace the program instructions
 with bespoke virtual instructions and eventually encode into a bytecode program.
 These virtual bytecodes will then be translated into native machine
@@ -190,26 +190,26 @@ Reverse engineering of VM-obfuscated code typically follows a number of steps. T
 Among these steps, understanding the semantics of individual bytecode instructions is often the most-consuming process, which is involved in analysing the handler that used to interpret every bytecode instruction.
 
 Numerous approaches have been proposed to protect VM handlers from reverse engineering.
-Most of them aim to increase the diversity of program behavior by obfuscating the handler implementation~\cite{wang2014tdvmp} or iteratively transforming a single program multiple times using different interpretation techniques\FIXME{Citations}. 
-However, all prior work employ a fixed strategy where each bytecode is deterministically translated to a fixed set of native code. 
+Most of them aim to increase the diversity of program behavior by obfuscating the handler implementation~\cite{wang2014tdvmp} or iteratively transforming a single program multiple times using different interpretation techniques~\cite{fang2011multi,6ming2011software}.
+However, all prior work employ a fixed strategy where each bytecode is deterministically translated to a fixed set of native code.
 Such techniques are vulnerable for programs protected under the same obfuscation technique. In particular, an attacker can reuse the knowledge (termed \emph{\textbf{analysis knowledge}} in this paper) of the handler implementation obtained from one program to attack another program.
 
-This paper resents DCVP (Code Virtualization Protection with Diversity), a enhanced VM-based code obfuscation system to address the issue of reusing analysis knowledge. 
+This paper resents DCVP (Code Virtualization Protection with Diversity), a enhanced VM-based code obfuscation system to address the issue of reusing analysis knowledge.
 We employ a technique called Instruction Set Randomization (ISR)~\cite{kc2003countering} to randomly change the \textit{opcodes} of bytecode instructions and their semantics, so that the mapping
 between bytecodes and their handlers will vary across programs. The randomization itself, however, is not sufficient for providing stronger protection, because it is easy to be bypassed due to the non-uniform distribution of bytecode instructions (e.g.
-the more frequent a bytecode is used, the more likely the relation between the bytecode and its handlers can be obtained from other programs). 
+the more frequent a bytecode is used, the more likely the relation between the bytecode and its handlers can be obtained from other programs).
 To overcome this issue, DCVP partitions the protected code region into several parts where the mappings of bytecode instructions and their handlers in each part are different. As a result, the same bytecode instruction in different parts of the bytecode program is likely to have different semantics.
-It is to note that this paper focuses on protecting code against reusing analysis knowledge for code reverse engineering. 
-Like any code obfuscation technique, malware developers could also exploit our technique to protect malicious programs, but preventing this is outside the scope of this work.  
+It is to note that this paper focuses on protecting code against reusing analysis knowledge for code reverse engineering.
+Like any code obfuscation technique, malware developers could also exploit our technique to protect malicious programs, but preventing this is outside the scope of this work.
 
 %Of course, we have to admit that some malware authors also will use the above code virtualization technology to ``protect" their malicious code and program. For example, Themida~\cite{Themida} is a popular tool of choice. In the same way, the reverse engineer isn't always the bad guy. However, in this paper, we put ourselves in the perspective of code protection, and aims to provide a mechanism for code protection to protect the legitimate interests of users from malicious infringement.
 
 
-The key contribution of this paper is a countermeasure to address the issue of reusing \textit{analysis knowledge} to perform code reverse engineering across programs. 
+The key contribution of this paper is a countermeasure to address the issue of reusing \textit{analysis knowledge} to perform code reverse engineering across programs.
 We compare our approach against VMProtect~\cite{vmp} and Themida~\cite{Themida} on \texttt{md5.exe}, \texttt{gzip.exe}, \texttt{bcrypt.exe} and \texttt{mat\underline{ }mul.exe} applications. Experimental results show that DCVP is able to provide stronger protection at the cost of little extra overhead.
 \FIXME{We need quantified results here. }
 
-The rest of the paper is organized as follows. 
+The rest of the paper is organized as follows.
 In Section~\ref{sec:background}, we illustrate the internals of VM-based obfuscation.
 Section~\ref{sec:threat-model} gives our threat model, which describes the analyst's capabilities and goals,
 and we illustrate the process of reverse engineering a VM-obfuscated program. We motivate our work in Section~\ref{sec:motivation}.
@@ -219,6 +219,7 @@ Section~\ref{sec:evaluation} evaluates DCVP for its effectiveness and its spatia
 % Head 1
 
 \input{background}
+
 \input{threat_model}
 
 \input{motivation}
@@ -235,12 +236,12 @@ At obfuscation time, we first convert native instructions into virtual instructi
 Data transfer instructions are mainly mapped into \texttt{load} and \texttt{store} instructions. Typical examples of these instructions are \texttt{mov}, \texttt{push}, and \texttt{pop}. Arithmetical and logical instructions strictly follow the three-phase processing. Branch instructions are mapped into a \texttt{load} instruction followed by a branch virtual instruction. Native instructions with complex addressing modes are processed iteratively with the above virtual instructions, for example, the \texttt{"mov eax, dword[esi+4]"} instruction in Table \ref{tab:native2virtual}.
 
 
-\section{VIs to Bytecodes}\label{sec:VI-Bytecode}
+\section{Virtual instructions to Bytecodes}\label{sec:VI-Bytecode}
 Virtual instructions will be encoded into bytecodes in the end. It is similar to that an assembler assembles assembly instructions into machine code and only can be interpreted by virtual interpreter of VM-based protection system. We adopt an encoding scheme less compacted than the x86 instruction architecture which uses separate bytes for the \textit{opcode} and \textit{operand} of a virtual instruction. In practice, we assign each virtual instruction a distinct ID as its \textit{opcode}. The ID is used by \texttt{VMloop} as an index to find the address of the \texttt{handler} of the virtual instruction in the address table recording the addresses of each \texttt{handler}. Since the number of virtual instructions is less than 256, thus one byte is sufficient to encode their IDs. As for the \textit{operands}, since they could be of different size\footnote{The \textit{operand} of a virtual instruction could be an index for virtual register, an immediate value, or a memory address. They could be of different size: a virtual register index being 8 bits, an immediate value being 8/16/32 bits, and a memory address being 32 bits.}, we use one, two, or four bytes to encode them correspondingly. Figure \ref{fig:encoding} shows some examples of virtual instructions and their bytecode. The figure also demonstrates how \texttt{VMloop} fetches and interprets the bytecode instructions.
 
 \begin{figure}[!t]
 \centering
-\includegraphics[width=0.45\columnwidth]{fig/encoding.pdf}
+\includegraphics[width=0.4\columnwidth]{fig/encoding.pdf}
 \caption{Examples of some virtual instructions and their bytecode. Each virtual instruction is encoded into a bytecode instruction, which consists of an \textit{opcode} and optionally an \textit{operand}. The bytecode instructions feed into \texttt{VMloop} and the \textit{opcode} of each bytecode instruction is used by \texttt{VMloop} as an index to find the address of the corresponding handler in the HAT (Handler Address Table).}
 \label{fig:encoding}
 %\vspace{-5mm}
@@ -267,6 +268,10 @@ To frustrate the inferences based on the frequencies of \textit{opcodes}, we par
 \end{figure}
 
 
+
+Algorithm~\ref{Alg:partition} demonstrated the implementation of the partition encoding. Partition the bytecode program, we will randomly divide virtual instructions into \emph{N} partitions and obfuscate the original HAS (Handler Set) for N times to get N sets of \texttt{handlers}, and the detailed HAS obfusction approach are demonstrated in section~\ref{sec:multi-handler}. For each partition, we will randomly select one set of \texttt{handlers} and shuffle the IDs of virtual IS, and then use the results to encode the VIs into a specific bytecode program. In the end, a complete bytecode program is generated, which has multiple partitions and the same bytecode has different semantics in different partitions. These specific bytecodes only can be can be interpreted by system's virtual interpreter. 
+%which contains \texttt{VMloop}, HAT and HAS.
+
 \begin{algorithm}
 \caption{Partition Bytecode Program}
 \begin{algorithmic}[1]
@@ -287,10 +292,6 @@ To frustrate the inferences based on the frequencies of \textit{opcodes}, we par
 \end{algorithmic}
 \label{Alg:partition}
 \end{algorithm}
-
-
-Algorithm~\ref{Alg:partition} demonstrated the implementation of the partition encoding. Partition the bytecode program, we will randomly divide virtual instructions into \emph{N} partitions and obfuscate the original HAS (Handler Set) for N times to get N sets of \texttt{handlers}, and the detailed HAS obfusction approach are demonstrated in section~\ref{sec:multi-handler}. For each partition, we will randomly select one set of \texttt{handlers} and shuffle the IDs of virtual IS, and then use the results to encode the VIs into a specific bytecode program. In the end, a complete bytecode program is generated, which has multiple partitions and the same bytecode has different semantics in different partitions. These specific bytecodes only can be can be interpreted by system's virtual interpreter. %which contains \texttt{VMloop}, HAT and HAS.
-
 
 
 As the \textit{opcodes} of bytecode instructions are used by \texttt{VMloop} as the indexes for the addresses of their corresponding \texttt{handlers}, and different partitions are encoded differently, each partition needs their own HAT. At the end of a partition, the HAT used by \texttt{VMloop} should be switched to the HAT of the next partition. This is done by a new virtual instruction - \texttt{switch\underline{ }HAT}. Since \texttt{switch\underline{ }HAT} is always added to the end of a partition and the orders of HATs are in accordance with that of the partitions, \texttt{switch\underline{ }HAT} needs to add the size of a HAT to the HAT pointer used by \texttt{VMloop} (as \texttt{Handler\underline{ }4024a6} does in figure \ref{fig:partition}). In our prototype, the number of \texttt{Handlers} is \texttt{148} and the address of a \texttt{Handler} is \texttt{4} bytes, thus the size of a HAT is \texttt{592} (\texttt{250h in hexadecimal}) bytes.
@@ -446,10 +447,10 @@ mat\underline{ }mul.exe & - & 184    & ijkalgorithm()      & 49327 & 60   & 0.12
 \Note{Note:}{%The 4th column indicates the critical function we choose to protect for each program.
 The 5th and 6th column gives the number of instructions in the entire program and these critical functions respectively, The 7th column gives the proportion of critical code.
 %\texttt{md5}, \texttt{gzip}, and \texttt{bcrypt} are used to process a \texttt{test.txt} file (10KB), and \texttt{mat\underline{ }mul} is used to calculate the product of two 5$\times$5 matrices.
-We use Pin\footnote{} to count the number of the dynamically executed instructions in the critical functions and the results are shown in the last column. We chose only 60 instructions of \texttt{mat\underline{ }mul} is special to verify the impact of DCVP on the program overhead when protecting a small amount of code. The results are shown in figure~\ref{fig:runtime} and the impact is not obvious.}
+We use Pin~\cite{pin} to count the number of the dynamically executed instructions in the critical functions and the results are shown in the last column. We chose only 60 instructions of \texttt{mat\underline{ }mul} is special to verify the impact of DCVP on the program overhead when protecting a small amount of code. The results are shown in figure~\ref{fig:runtime} and the impact is not obvious.}
 \end{tabnote}
 \end{table}
-\footnotetext{Pin - A Dynamic Binary Instrumentation Tool. https://software.intel.com/en-us/articles/pin-a-dynamic-binary-instrumentation-tool.}
+%\footnotetext{Pin - A Dynamic Binary Instrumentation Tool. https://software.intel.com/en-us/articles/pin-a-dynamic-binary-instrumentation-tool.}
 
 
 
@@ -535,8 +536,8 @@ Kent \cite{kent1981protecting} addressed the security requirements of software v
 protection from software copying and modification.
 During the past decades, numerous approaches of software protection have been proposed,
 e.g. junk instructions, equivalent instructions \cite{nicolaou2009applied}, packer (such as,
-``\texttt{ASProtect}"\footnote{Application Protection Tools for Software Developers, http://www.aspack.com/asprotect32.html.},
-``\texttt{UPX}"\footnote{Ultimate Packer for eXecutables (UPX), http://upx.sourceforge.net/.}),
+\texttt{ASProtect}~\cite{asprotect},
+\texttt{UPX}~\cite{upx}),
 code encryption, control flow and data flow obfuscation \cite{collberg2002watermarking,liem2008compiler,ge2005control}, etc.
 These conventional approaches alone provide only limited obscurity,
 and one protection system usually integrates several of these and makes them work together to provide a certain level of obscurity.

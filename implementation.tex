@@ -1,20 +1,27 @@
 \section{Overview}\label{sec:overview}
-%As we have described, the reuse of \textit{analysis knowledge} about the semantics of bytecode instructions can save an analyst much time and effort. Since the longer the software stay uncompromised, the more benefit the software authors will get, the naive idea to harden code virtualized obfuscation is to disable the \textit{analysis knowledge} and force analysts to analyze the obfuscated software programs from scratch. Our solution is randomizing the relationships between the bytecode instructions and their semantics for each obfuscation instance. In this section, we will present the details about our solution. For better understanding, we will start from the design of virtual IS and \texttt{handlers}.
+To address the problem of analysis knowledge reuse, we want to introduce a method
+can make the target program with semantic diversity.
+The process of DCVP to protect the code follows several major steps described as follows 
+(for better understanding, we will introduce our approach start from the design of virtual IS and \texttt{handlers}):
 
-\FIXME{This is not an overview. Please briefly describe your approach but not explainations of terminologies.}
+%\emph{Design of Virtual IS and Handlers:}
+\paragraph{Design of Virtual IS and Handlers}
+First design complete Virtual IS (virtual instruction set) according to the classification of native instructions, and then design the \texttt{handlers} that used to interpret the VI (Virtual Instruction). The details are described as section~\ref{sec:VIS-Handlers}.
 
-\paragraph{Virtual IS and Handlers}
-%\subsubsection{Virtual IS and Handlers}
-Virtual IS (Virtual Instruction Set) and \texttt{handlers} are the basis of the VM-based obfuscation system. First analysis of the native instructions, design complete virtual instruction set according to the classification of native instructions, and then design the \texttt{handlers} that used to interpret the VI (Virtual Instruction). The details are described as section~\ref{sec:VIS-Handlers}.
-
-\paragraph{Native Instructions to VIs}
+%\paragraph{Native Instructions to VIs:}
+\paragraph{Target Instructions Virtualization}
 Extract the native instructions of key code segment from the target program, and then convert native instructions to the corresponding VIs according to designed virtual IS. The details are described as section~\ref{sec:NI-VI}.
 
-\paragraph{VIs to Bytecode}
-It is a very important step that convert virtual instructions into a bytecode program in the process of code virtualization protection. System will generate a special bytecode program based on special encoding schemes, and these bytecodes can only be interpreted by the special interpreter of the system itself. This paper adopt the method of partitioning and randomization of virtual instruction semantics, and the different parts of the bytecode program will have different semantics. So different partitions need a set of specific interpretation procedures, the system will generate multiple sets of \texttt{Handlers} with same functions but different forms. Our approach will also adopt some anti-taint analysis techniques to protect \texttt{Handlers} and other components from taint analysis. The details are described as section~\ref{sec:VI-Bytecode}.
+%\paragraph{VIs to Bytecode:}
+\paragraph{Generate Diversified Bytecode Program}
+Convert the virtual instructions into a diversified bytecode program by using a special encoding schemes. Each protected code region will be partitioned into multiple segments where the mapping of opcodes and their semantics are randomized in different ways in different segments.
+Then generate multiple sets of \texttt{handlers} that with equivalent functions but different forms makes each partition has unique interpretation procedures. DCVP will also adopt some anti-taint analysis techniques to protect the core components from taint analysis.
+The details are described as section~\ref{sec:VI-Bytecode}.
 
 
-DCVP will convert all of the critical instructions into bytecode program that can only be interpreted by the system itself. Finally the bytecode program and other VM components (such as, VMloop, VMcontext et al.) are assembled into the target program through binary rewriting.
+\paragraph{PE Refactoring}
+%DCVP will convert all of the critical instructions into bytecode program that can only be interpreted by the system itself.
+Finally the bytecode program and other VM components (such as, \texttt{VMloop}, \texttt{VMcontext} et al.) are assembled into the target program through binary rewriting.
 
 
 

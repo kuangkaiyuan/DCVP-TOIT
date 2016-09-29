@@ -206,8 +206,12 @@ Like any code obfuscation technique, malware developers could also exploit our t
 
 
 The key contribution of this paper is a countermeasure to address the issue of reusing \textit{analysis knowledge} to perform code reverse engineering across programs.
-We compare our approach against VMProtect~\cite{vmp} and Themida~\cite{Themida} on \texttt{md5.exe}, \texttt{gzip.exe}, \texttt{bcrypt.exe} and \texttt{mat\underline{ }mul.exe} applications. Experimental results show that DCVP is able to provide stronger protection at the cost of little extra overhead.
-\FIXME{We need quantified results here. }
+We compare our approach against VMProtect~\cite{vmp} and Themida~\cite{Themida} on \texttt{md5.exe}, \texttt{gzip.exe}, \texttt{bcrypt.exe} and \texttt{mat\underline{ }mul.exe} applications. 
+Experimental results show that DCVP is able to provide stronger protection at the cost of little extra overhead.
+%\FIXME{We need quantified results here. }
+DCVP is similar to VMProtect in temporal and spatial overhead, and they are all better than Themida. 
+And on the basis of execution time costs caused by code virtualization, the growth of DCVP partitions' number hardly affects the time overhead.
+
 
 The rest of the paper is organized as follows.
 In Section~\ref{sec:background}, we illustrate the internals of VM-based obfuscation.
@@ -267,11 +271,6 @@ To frustrate the inferences based on the frequencies of \textit{opcodes}, we par
 %\vspace{-5mm}
 \end{figure}
 
-
-
-Algorithm~\ref{Alg:partition} demonstrated the implementation of the partition encoding. Partition the bytecode program, we will randomly divide virtual instructions into \emph{N} partitions and obfuscate the original HAS (Handler Set) for N times to get N sets of \texttt{handlers}, and the detailed HAS obfusction approach are demonstrated in section~\ref{sec:multi-handler}. For each partition, we will randomly select one set of \texttt{handlers} and shuffle the IDs of virtual IS, and then use the results to encode the VIs into a specific bytecode program. In the end, a complete bytecode program is generated, which has multiple partitions and the same bytecode has different semantics in different partitions. These specific bytecodes only can be can be interpreted by system's virtual interpreter. 
-%which contains \texttt{VMloop}, HAT and HAS.
-
 \begin{algorithm}
 \caption{Partition Bytecode Program}
 \begin{algorithmic}[1]
@@ -292,6 +291,11 @@ Algorithm~\ref{Alg:partition} demonstrated the implementation of the partition e
 \end{algorithmic}
 \label{Alg:partition}
 \end{algorithm}
+
+Algorithm~\ref{Alg:partition} demonstrated the implementation of the partition encoding. Partition the bytecode program, we will randomly divide virtual instructions into \emph{N} partitions and obfuscate the original HAS (Handler Set) for N times to get N sets of \texttt{handlers}, and the detailed HAS obfusction approach are demonstrated in section~\ref{sec:multi-handler}. For each partition, we will randomly select one set of \texttt{handlers} and shuffle the IDs of virtual IS, and then use the results to encode the VIs into a specific bytecode program. In the end, a complete bytecode program is generated, which has multiple partitions and the same bytecode has different semantics in different partitions. These specific bytecodes only can be can be interpreted by system's virtual interpreter.
+%which contains \texttt{VMloop}, HAT and HAS.
+
+
 
 
 As the \textit{opcodes} of bytecode instructions are used by \texttt{VMloop} as the indexes for the addresses of their corresponding \texttt{handlers}, and different partitions are encoded differently, each partition needs their own HAT. At the end of a partition, the HAT used by \texttt{VMloop} should be switched to the HAT of the next partition. This is done by a new virtual instruction - \texttt{switch\underline{ }HAT}. Since \texttt{switch\underline{ }HAT} is always added to the end of a partition and the orders of HATs are in accordance with that of the partitions, \texttt{switch\underline{ }HAT} needs to add the size of a HAT to the HAT pointer used by \texttt{VMloop} (as \texttt{Handler\underline{ }4024a6} does in figure \ref{fig:partition}). In our prototype, the number of \texttt{Handlers} is \texttt{148} and the address of a \texttt{Handler} is \texttt{4} bytes, thus the size of a HAT is \texttt{592} (\texttt{250h in hexadecimal}) bytes.
@@ -361,13 +365,23 @@ This various semantics of bytecode instructions and different forms of \texttt{h
 \end{figure}
 
 \subsection{Anti-Taint Analysis \label{sec:anti-taint}}
-Simply obfuscating the \texttt{handlers}, however, cannot prevent an attacker from reverse engineering completely. There are several existing de-obfuscating techniques that can be used to counter the traditional virtualization protection. Such as, Coogan et al.~\cite{coogan2011deobfuscation}, who use equational reasoning about assembly-level instruction semantics to simplify away obfuscation code from execution traces of emulation-obfuscated programs. Yadegari et al.~\cite{Yadegari2015A}, which use taint propagation to track the flow of values from the program¡¯s inputs to its outputs, and semantics-preserving code transformations to simplify the logic of the instructions that operate on and transform values through this flow.
+Simply obfuscating the \texttt{handlers}, however, 
+cannot prevent an attacker from reverse engineering completely. 
+There are several existing de-obfuscating techniques that 
+can be used to counter the traditional virtualization protection.
+Such as, Coogan et al.~\cite{coogan2011deobfuscation}, who use equational reasoning 
+about assembly-level instruction semantics to simplify away obfuscation code from 
+execution traces of emulation-obfuscated programs.
+Yadegari et al.~\cite{Yadegari2015A}, which use taint propagation to track 
+the flow of values from the program¡¯s inputs to its outputs,
+and semantics-preserving code transformations to simplify the logic of 
+the instructions that operate on and transform values through this flow.
 
-However, the work of Coogan et al. is based on equational reasoning about assembly level instruction semantics, and such a approach has some drawbacks that is difficult to simplify the complex equation, making it hard to separate out the different components of nested loops or complex control flow. So it is difficult to extract the implicit logic from the high level structures, such as control flow graphs or syntax trees. Besides, this is a kind of behavior based analysis method, which has good applicability to the analysis of malicious code, but the result of the analysis of the benign program is not good. The results can not fully reflect the function of the protected code.
-
-Work of Yadegari et al. can be effective even when applied to previously unseen obfuscations, but there are still some shortcomings that code simplification should be first to identify input-to-output flows by using taint analysis. They rely on the taint propagation and forward/backward taint analysis to identify the explicit flow of values from inputs to outputs, then use control dependence analysis to identify implicit flows. Further on this basis to do trace simplification. Therefore, we can strengthen the \texttt{handlers} obfuscation approach with the anti-taint analysis to impede this kind of de-obfuscate approach.
-
-In order to protect the obfuscated virtual interpretation procedure, we will adopt the anti-taint analysis techniques to protect the data flow of the \texttt{handlers} from taint analysis. Specific ways are as follows:
+However, the work of Coogan et al. is based on equational reasoning about assembly level instruction semantics, 
+and it is difficult to simplify the complex equation, 
+that making it hard to separate out the different components of nested loops or complex control flow. 
+%Besides, this is a kind of behavior based analysis method, which has good applicability to the analysis of malicious code, but the result of the analysis of the benign program is not good. The results can not fully reflect the function of the protected code.
+The work of Yadegari et al. can be effective even when applied to previously unseen obfuscations, but code simplification should be first to identify input-to-output data flows. This rely on the taint propagation and analysis to identify the explicit flow of values from inputs to outputs, then use control dependence analysis to identify implicit flows. Therefore, these methods may be impeded by enforcing dataflow obfuscation to the handling procedures~\cite{liem2008compiler}. We adopt some anti-taint analysis techniques to protect the data flow of the \texttt{handlers} from taint analysis. Specific ways are as follows:
 
 \paragraph{The transfer of naive model}
 A simple case is given in Figure~\ref{fig:anti-taint}-(a), assuming that there is a variable \emph{B} that has been marked by taint, we need to transfer the value of \emph{B} to \texttt{AX}. If we use the \texttt{MOV} instruction, \texttt{AX} will also be tainted. The transfer of naive model is that to do subtraction operation for \emph{B}, at the same time to do addition operation for \texttt{AX}. When the value of \emph{B} is reduced to "0", the value of AX increased from "0" to \emph{B}, and \texttt{AX} will not be marked as a tainted data.
@@ -378,7 +392,8 @@ Control dependence analysis is an important step towards the process of taint an
 \paragraph{The indirect transfer of stack pointer}
 As we can see from Figure~\ref{fig:anti-taint}-(c). The indirect transfer of stack pointer took advantage of the working principle of the stack to implement the anti-taint analysis. The principle of this method is to first put a set of non tainted data into the stack, and then through the address pointer of stack data to access the stack data, and finally use the stack data to replace the tainted data to implement the anti-taint analysis.
 
-The above three methods can effectively prevent the spread of tainted data by laundering tainted data, and then can effectively resist the taint analysis.
+The above three methods can prevent the spread of tainted data by laundering tainted data 
+and resist the taint analysis effectively .
 
 
 \section{Evaluation}\label{sec:evaluation}
@@ -446,16 +461,11 @@ mat\underline{ }mul.exe & - & 184    & ijkalgorithm()      & 49327 & 60   & 0.12
 \begin{tabnote}
 \Note{Note:}{%The 4th column indicates the critical function we choose to protect for each program.
 The 5th and 6th column gives the number of instructions in the entire program and these critical functions respectively, The 7th column gives the proportion of critical code.
-%\texttt{md5}, \texttt{gzip}, and \texttt{bcrypt} are used to process a \texttt{test.txt} file (10KB), and \texttt{mat\underline{ }mul} is used to calculate the product of two 5$\times$5 matrices.
 We use Pin~\cite{pin} to count the number of the dynamically executed instructions in the critical functions and the results are shown in the last column. We chose only 60 instructions of \texttt{mat\underline{ }mul} is special to verify the impact of DCVP on the program overhead when protecting a small amount of code. The results are shown in figure~\ref{fig:runtime} and the impact is not obvious.}
 \end{tabnote}
 \end{table}
-%\footnotetext{Pin - A Dynamic Binary Instrumentation Tool. https://software.intel.com/en-us/articles/pin-a-dynamic-binary-instrumentation-tool.}
 
 
-
-
-Figure \ref{fig:filesize} shows the size of the obfuscated programs. The horizontal axis specifies the number of partitions in the obfuscated programs and ``\texttt{0}" means the original program. As the partitions increase, the increased bytes mostly come from the added HATs and HAS. Since the size of a HAT is only 592 bytes, the sizes of the HATs increase slowly. Besides, the sections in PE executables are aligned to a value (4096 or 512 usually)\cite{pe}, the increase of sizes may not reveal immediately as the partitions increase. The filesize of the program is mainly affected by the number of HAS, and it increases with the increase of HAS regularity.
 
 \begin{figure}[t]
 \centering
@@ -476,7 +486,33 @@ Figure \ref{fig:filesize} shows the size of the obfuscated programs. The horizon
 \end{minipage}
 \end{figure}
 
-To evaluate the runtime overhead that DCVP introduces, we run the obfuscated programs for several times and calculate the average execution time of them: \texttt{md5}, \texttt{gzip}, and \texttt{bcrypt} are used to process a text file (\texttt{test.txt}) of 10KB; \texttt{matrix\underline{ }mul} is used to calculate the product of two 5$\times$5 matrices. The average execution time is shown in figure \ref{fig:runtime}. Among them, \texttt{bcrypt} has the largest increase of execution time from original program\footnote{The execution time of the original program is specified by ``\texttt{0}" on the horizontal axis.} to the obfuscated program with one partition. This resulted from that the critical instructions in \texttt{bcrypt} is executed much more times than others (as shown in the last column in table \ref{tab:statistics}). Besides, the execution time changes little as the number of partitions increases. From section~\ref{sec:partition-random} we can learn that if the number of partitions increases by one, the program only needs to execute an extra \texttt{handler} to interpret the \texttt{switch\underline{ }HAT} instruction. The introduced runtime overhead is negligible. In some situations, the execution time of an obfuscated program with more partitions may have a slightly lower runtime overhead. This probably results from the locality of reference\footnote{Locality of reference. https://en.wikipedia.org/wiki/Locality\_of\_reference}. %\cite{locality}.
+
+Figure \ref{fig:filesize} shows the size of the obfuscated programs. 
+The horizontal axis specifies the number of partitions in the obfuscated programs 
+and ``\texttt{0}" means the original program. 
+As the partitions increase, the increased bytes mostly come from the added HATs and HAS. 
+Since the size of a HAT is only 592 bytes, the sizes of the HATs increase slowly. 
+Besides, the sections in PE executables are aligned to a value (4096 or 512 usually)\cite{pe}, 
+the filesize of the program is mainly affected by the number of HAS, 
+and it increases with the increase of partition's number regularity.
+
+
+To evaluate the runtime overhead that DCVP introduces, 
+we run the obfuscated programs for several times and calculate the average execution time of them: 
+\texttt{md5}, \texttt{gzip}, and \texttt{bcrypt} are used to process a text file (\texttt{test.txt}) of 10KB; \texttt{matrix\underline{ }mul} is used to calculate the product of two 5$\times$5 matrices. 
+The average execution time is shown in figure \ref{fig:runtime}. 
+Among them, \texttt{bcrypt} has the largest increase of execution time from original 
+program\footnote{The execution time of the original program is specified by ``\texttt{0}" on the horizontal axis.} 
+to the obfuscated program with one partition. 
+This resulted from that the critical instructions in \texttt{bcrypt} is executed much more times 
+than others (as shown in the last column in table \ref{tab:statistics}). 
+Besides, the execution time changes little as the number of partitions increases. 
+From section~\ref{sec:partition-random} we can learn that if the number of partitions increases by one, 
+the program only needs to execute an extra \texttt{handler} to interpret the \texttt{switch\underline{ }HAT} instruction. 
+The introduced runtime overhead is negligible. 
+In some situations, the execution time of an obfuscated program with more partitions 
+may have a slightly lower runtime overhead. 
+This probably results from the locality of reference\footnote{Locality of reference. https://en.wikipedia.org/wiki/Locality\_of\_reference}. %\cite{locality}.
 
 \begin{figure}[t]
 \centering
@@ -498,13 +534,18 @@ To evaluate the runtime overhead that DCVP introduces, we run the obfuscated pro
 \end{figure}
 
 
-We evaluate the average runtime overhead per dynamically executed instruction. We use $T_{ob}$ to denote the execution time of a obfuscated program, $T_{o}$ for that of the original program, and $C_{e}$ for the count of the critical instructions been dynamically executed. The average runtime overhead per dynamically executed instruction is calculated by
+We evaluate the average runtime overhead per dynamically executed instruction. 
+We use $T_{ob}$ to denote the execution time of a obfuscated program, 
+$T_{o}$ for that of the original program, 
+and $C_{e}$ for the count of the critical instructions been dynamically executed. 
+The average runtime overhead per dynamically executed instruction is calculated by
 %\[\frac{T_{ob} - T_{o}}{C_{e}}.\]
-\[(T_{ob} - T_{o})/C_{e}. \]
-The results are shown in figure \ref{fig:avgruntime}. From figure \ref{fig:avgruntime}, we can learn that \texttt{md5} has the largest average runtime overhead per dynamically executed instruction. The reason is that the critical code of \texttt{md5} is full of arithmetical and logical instructions, which takes a longer time to interpret.
+\[(T_{ob} - T_{o})/C_{e}. \] The results are shown in figure \ref{fig:avgruntime}. 
+From this figure, we can learn that \texttt{md5} has the largest 
+average runtime overhead per dynamically executed instruction. 
+The reason is that the critical code of \texttt{md5} is full of arithmetical and logical instructions, 
+which takes a longer time to interpret.
 
-
-We also put the four target programs together and count the average frequencies of \textit{opcodes}. We take the obfuscated programs with 1, 2, 4, 8, 16, and 32 partitions for comparison. The results are presented in figure \ref{fig:freq}. As we can see, as the number of partitions increases, the frequencies of \textit{opcodes} tend to be closer. When the partition number is 1, we can easily get the instruction that has the highest frequency is ``\texttt{load\underline{ }r}", since it is the most commonly used instruction.
 
 \begin{figure}[!t]
 \centering
@@ -525,7 +566,30 @@ We also put the four target programs together and count the average frequencies 
 \end{minipage}
 \end{figure}
 
-Finally, we use two commercial code virtualization protection system for comparison, VMProtect~\cite{vmp} and Themida~\cite{Themida}. Figure~\ref{fig:filecom} shows the impact of the three virtualization protection system on the file size of the four target programs. The cost of Themida is much greater than the other two system, and the impact of DCVP and VMProtect is similar. This result should be related to the design of virtual instructions and \texttt{handlers}. Runtime overhead as shown in Figure~\ref{fig:timecom}. In general, the effects of the three protection systems are similar. Special, the runtime overhead of \texttt{bcrypt} that protected by Themida is far greater than the other target programs.
+We also put the four target programs together and count the average frequencies of \textit{opcodes}. 
+We take the obfuscated programs with 1, 2, 4, 8, 16, and 32 partitions for comparison. 
+The results are presented in figure \ref{fig:freq}. 
+As we can see, as the number of partitions increases, 
+the frequencies of \textit{opcodes} tend to be closer. 
+When the partition number is 1, we can easily get the instruction 
+that has the highest frequency is ``\texttt{load\underline{ }r}", 
+since it is the most commonly used instruction.
+
+
+
+Finally, we use two commercial code virtualization protection system for comparison, 
+VMProtect~\cite{vmp} and Themida~\cite{Themida}. 
+Figure~\ref{fig:filecom} shows the impact of the three virtualization protection system 
+on the file size of the four target programs. 
+The cost of Themida is much greater than the other two system, 
+and the impact of DCVP and VMProtect is similar. 
+This result should be related to the design of virtual instructions and \texttt{handlers}. 
+Runtime overhead as shown in Figure~\ref{fig:timecom}. 
+In general, the effects of the three protection systems are similar. 
+Special, the runtime overhead of \texttt{bcrypt} that protected by Themida 
+is far greater than the other target programs. 
+This may be related to the design of the Themida and the executed number of critical instructions in \texttt{bcrypt}.
+According to above comparison, we can see that DCVP is similar to VMProtect in temporal and spatial overhead, and they are all better than Themida. 
 
 
 \section{Related Work}\label{sec:related}

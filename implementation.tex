@@ -1,7 +1,7 @@
 \section{Overview}\label{sec:overview}
 To address the problem of analysis knowledge reuse, we want to introduce a method
 can make the target program with semantic diversity.
-The process of DCVP to protect the code follows several major steps described as follows 
+The process of DCVP to protect the code follows several major steps described as follows
 (for better understanding, we will introduce our approach start from the design of virtual IS and \texttt{handlers}):
 
 %\emph{Design of Virtual IS and Handlers:}
@@ -45,7 +45,7 @@ To devise a virtual IS that is Turing-equivalent to the native IS, one naive app
 Other instructions that are not included in the above categories are defined as special virtual instruction - \texttt{undef}, which we will discuss later. We first discuss the different formats of these instructions and how to implement the handlers of them.
 
 \begin{table}[]
-\renewcommand{\arraystretch}{1.1}
+\renewcommand{\arraystretch}{1.0}
 \tbl{The Virtual Instructions and Corresponding Handlers of \texttt{load} and \texttt{store}.\label{tab:load}}{
 
 \begin{tabular}{|l|l|}
@@ -101,7 +101,7 @@ VI              & Handler                     \\ \hline \hline
 Besides the operand type, the operand size matters as well. In x86 architecture, the size of an operand could be 8-bit, 16-bit, and 32-bit. For example, given a memory address, the \texttt{load} instruction could fetch the first 8-bit, or the lower 16-bit value, or the entire 32-bit value that stored in that address. Therefore, it is better to design a virtual instruction for every distinct combination of operand type and size. However, in x86 architecture, \texttt{push} and \texttt{pop} operations do not support 8-bit operations. We decide to delay distinguishing different size operands to the second phase of virtualizing native instructions. Table \ref{tab:load} shows the virtual instructions of \texttt{load} and \texttt{store} and their corresponding \texttt{handlers}. In table \ref{tab:load}, there exists four special virtual instructions: \texttt{load\underline{ }r8h} and \texttt{store\underline{ }r8h} are used when we encounter an operation that manipulate the second least significant byte of a register, i.e., \texttt{ah}, \texttt{dh}, \texttt{ch}, \texttt{bh}. \texttt{load\underline{ }ms} and \texttt{store\underline{ }ms} have no operands and are used to process instructions with indirect memory addressing mode (memory address is stored in a register or presented as an expression). An example in table \ref{tab:native2virtual} illustrates the situation of using of \texttt{load\underline{ }ms}.
 
 \begin{table}[!t]
-\renewcommand{\arraystretch}{1.1}
+\renewcommand{\arraystretch}{1.0}
 \tbl{The Virtual Instructions and Handlers of \texttt{add} Virtual Instructions.\label{tab:arithmetic}}{
 \begin{tabular}{|l|l|}
 \hline
@@ -138,7 +138,7 @@ In native IS, the commonly used branch instructions include \texttt{jmp}, \textt
 Besides the location of the destination instruction, we should also consider if the destination of a branch instruction can be determined statically. From this point of view, the branch instructions can be divided into two categories: one is \emph{direct branches}, whose destinations are calculated in a PC (Program Counter)-relative mode and can be calculated statically. The other is \emph{indirect branches}, whose destinations are stored in registers or memories. Their destinations are undefined statically and are determined at runtime. Table \ref{tab:controltransfers} classifies different forms of \texttt{jmp/jcc/call/retn} instructions considering the above two categories.
 
 \begin{table}[h]
-\renewcommand{\arraystretch}{1.1}
+\renewcommand{\arraystretch}{1.0}
 \tbl{Examples of Direct and Indirect Branches.\label{tab:controltransfers}}{
 \begin{tabular}{|l|l|}
 \hline
@@ -158,7 +158,7 @@ Indirect Branches & \texttt{jmp reg32/mem32}  \\
 \textbf{Direct Branches}. Since \texttt{jmp} instructions are the basis of the other branch instructions, we elaborate on the introduction of the virtual instructions and handlers of \texttt{jmp} instructions. As we have illustrated, the destination of a direct \texttt{jmp} instruction can be calculated statically. If the destination instruction of the \texttt{jmp} instruction resides in the critical code, the \texttt{jmp} is a \textit{direct inner} \texttt{jmp}; otherwise a \textit{direct outer} \texttt{jmp}. We designate virtual instructions for both of them, \texttt{jmp\underline{ }di} for the former, and \texttt{jmp\underline{ }do} for the latter. For \textit{direct inner} \texttt{jmp}, it is able to obtain the corresponding bytecode instruction address of its native destination instruction during protection. Therefore, we set that bytecode instruction address as the operand of \texttt{jmp\underline{ }di}, which is pushed into stack by \texttt{load\underline{ }i}. The handler of \texttt{jmp\underline{ }di} fetches the address from stack and assigns it to VPC (Virtual Program Counter). For \textit{direct outer} \texttt{jmp}, we just need to jump to that destination instruction. Prior to that, we should restore the native context. Therefore, the operand of \texttt{jmp\underline{ }do} is the address of the native destination instruction. Table \ref{tab:jmp} presents the above two virtual instructions of \textit{direct} \texttt{jmp} and their handlers.
 
 \begin{table}[!ht]
-\renewcommand{\arraystretch}{1.1}
+\renewcommand{\arraystretch}{1.0}
 \tbl{The Virtual Instructions and Handlers of \texttt{jmp} Instructions.\label{tab:jmp}}{ %\texttt{jmp\underline{ }di} is for \textit{direct inner} \texttt{jmp} and \texttt{jmp\underline{ }do} for \textit{direct outer} \texttt{jmp}.}
 \begin{tabular}{|c|l|}
 \hline
@@ -185,7 +185,7 @@ VI                           & Handler      \\ \hline \hline %\raisebox{1.0ex}[0
 The above three categories cover the commonly used instructions. Although the other native instructions are rarely used, such as \texttt{bts}, \texttt{enter}, \texttt{int n}, and \texttt{out}, our native IS should consider them too. For these instructions, we define a special virtual instruction - \texttt{undef}. At runtime, when encountering such an instruction, it first restores the native context and exits the VM. Then, it executes that native instruction in native context and finally re-enters the VM and continues to execute the left bytecode instructions. The \textit{indirect branches} are also processed in this way.
 
 \begin{table}[!t]
-\renewcommand{\arraystretch}{1.1}
+\renewcommand{\arraystretch}{1.0}
 \tbl{Examples of Native Instructions and Their Corresponding Virtual Instructions.\label{tab:native2virtual}}{
 \begin{tabular}{|l|l|}
 \hline

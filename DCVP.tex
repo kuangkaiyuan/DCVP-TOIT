@@ -158,7 +158,7 @@ instruction set randomization, analysis knowledge}
 
 Correspondence author's Email addresses: Dingyi Fang,
 %the School of Information Science and Technology,
-%Northwest University, Xi¡¯an, China, 710127. 
+%Northwest University, Xi¡¯an, China, 710127.
 Email: dyf@nwu.edu.cn.
 
 Author's addresses: G. Li, K. Kuang, Z. Tang, D. Fang, X. Chen,
@@ -399,8 +399,7 @@ and resist the taint analysis effectively .
 
 
 \section{Evaluation}\label{sec:evaluation}
-In this section, we will evaluate the effectiveness of our method for mitigating the
-effect of reuse of \textit{analysis knowlege} and the spatial and temporal overhead of our method.
+In this section, we first evaluate the effectiveness of DCVP by computing the likelihood of a bytecode instruction of two partitioned segments is mapped to identical machine code. We then evaluate the overhead of DVCP in terms of the code size and runtime. 
 
 
 \subsection{Effectiveness Evaluation}
@@ -474,7 +473,7 @@ We use Pin~\cite{pin} to count the number of the dynamically executed instructio
 \begin{minipage}[t]{0.45\linewidth}
 \centering
 \includegraphics[width=0.9\textwidth]{fig/filesize.pdf}
-\caption{The impact on file size (KB) of DCVP. The file size slightly increased with the increase of number of partitions}
+\caption{The impact on code size (KB) of DCVP. The file size slightly increased with the increase of number of partitions}
 \label{fig:filesize}
 \end{minipage}
 %\end{figure}
@@ -489,7 +488,7 @@ We use Pin~\cite{pin} to count the number of the dynamically executed instructio
 \end{figure}
 
 
-Figure \ref{fig:filesize} shows the size of the obfuscated programs.
+Figure \ref{fig:filesize} shows the code size of the obfuscated programs.
 The horizontal axis specifies the number of partitions in the obfuscated programs
 and ``\texttt{0}" means the original program.
 As the partitions increase, the increased bytes mostly come from the added HATs and HAS.
@@ -665,15 +664,15 @@ making the reverse analyses even more difficult and tedious.
 
 
 \section{Conclusion}
-In this paper, we have presented the DCVP, a VM-based code obfuscation scheme. 
-DCVP is designed to prevent code reverse engineering attacks 
+In this paper, we have presented the DCVP, a VM-based code obfuscation scheme.
+DCVP is designed to prevent code reverse engineering attacks
 that use knowledge obtained from programs protected under the same code obfuscation technique.
-We achieve this by first partitioning the protected code region to different segments; 
-then randomly mapping the opcode of each virtual instruction from different segments to different bytecode handlers. 
-As a result, the mapping between a virtual instruction and native code changes from one code segment to the other. 
-This significantly increases the diversity of the program behavior, 
-making it much harder for an attacker to reuse knowledge obtained from other programs to attack the target application. 
-We have evaluated our approach on a set of real-world applications 
+We achieve this by first partitioning the protected code region to different segments;
+then randomly mapping the opcode of each virtual instruction from different segments to different bytecode handlers.
+As a result, the mapping between a virtual instruction and native code changes from one code segment to the other.
+This significantly increases the diversity of the program behavior,
+making it much harder for an attacker to reuse knowledge obtained from other programs to attack the target application.
+We have evaluated our approach on a set of real-world applications
 and compared it against state-of-the-art VM-based code protection tools.
 Experimental results show that DCVP provides stronger protection (measured by the how likely a virtual instruction within two segments is mapped to the same native code or handler) at the cost of little extract overhead.
 % Start of "Sample References" section

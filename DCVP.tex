@@ -65,15 +65,15 @@
 \begin{document}
 
 % Page heads
-\markboth{G. Li et al.}{Enhance Code Virtualization Protections Via Diversity}
+\markboth{Z. Tang et al.}{Enhance Code Virtualization Protections Via Diversity}
 
 % Title portion
 \title{Enhance Code Virtualization Protections Via Diversity}
-\author{Guanghui Li
+\author{Zhanyong Tang
 \affil{Northwest University}
 Kaiyuan Kuang
 \affil{Northwest University}
-Zhanyong Tang
+Guanghui Li
 \affil{Northwest University}
 Di Ma
 \affil{University of Michigan-Dearborn}
@@ -155,9 +155,11 @@ instruction set randomization, analysis knowledge}
 \begin{bottomstuff}
 %This work is supported by the National Science Foundation, under
 %grant CNS-0435060, grant CCR-0325197 and grant EN-CS-0329609.
-%Correspondence author¡¯s addresses: Zhanyong Tang,
-%School of Information Science and Technology,
-%Northwest University, Xi¡¯an, China, 710127.
+
+Correspondence author's Email addresses: Dingyi Fang,
+%the School of Information Science and Technology,
+%Northwest University, Xi¡¯an, China, 710127. 
+Email: dyf@nwu.edu.cn.
 
 Author's addresses: G. Li, K. Kuang, Z. Tang, D. Fang, X. Chen,
 School of Information Science and Technology,
@@ -418,11 +420,12 @@ which can largely confuse analysts and increase their workload.
 
 
 Assuming that the number of virtual instructions, or the number of \texttt{handlers} in other words, is $H$,
-then the probability of a bytecode instructions in two obfuscated programs having the same semantics is $\frac{1}{H}$.
+then the probability of a bytecode instruction in two obfuscated programs having the same semantics is $\frac{1}{H}$.
 The total number of distinct shuffle of the \textit{opcodes} is $H!$. In an obfuscated program,
 supposing the bytecode program is partitioned into $N$ parts,
-then the probability that a bytecode instruction in different partitions is mapped to the same native code is $\left(\frac{1}{H}\right)^{N-1}$.
-Therefore, we believe DCVP can effectively invalid the \textit{analysis knowledge}
+then the probability that a bytecode instruction in different partitions having
+the same semantics is $\left(\frac{1}{H}\right)^{N-1}$.
+Therefore, we believe DCVP can effectively remove the \textit{analysis knowlege}
 about the semantics of bytecode instructions.
 
 \subsection{Overhead Evaluation}
@@ -662,27 +665,17 @@ making the reverse analyses even more difficult and tedious.
 
 
 \section{Conclusion}
-In this paper, we have presented the DCVP, a VM-based code obfuscation scheme. DCVP is designed to prevent code reverse engineering attacks that use knowledge obtained from programs protected under the same code obfuscation technique. 
-We achieve this by first partitioning the protected code region to different segments; then randomly mapping the opcode of each virtual instruction from different segments to different bytecode handlers. 
+In this paper, we have presented the DCVP, a VM-based code obfuscation scheme. 
+DCVP is designed to prevent code reverse engineering attacks 
+that use knowledge obtained from programs protected under the same code obfuscation technique.
+We achieve this by first partitioning the protected code region to different segments; 
+then randomly mapping the opcode of each virtual instruction from different segments to different bytecode handlers. 
 As a result, the mapping between a virtual instruction and native code changes from one code segment to the other. 
-This significantly increases the diversity of the program behavior, making it much harder for an attacker to reuse knowledge obtained from other programs to attack the target application. 
-We have evaluated our approach on a set of real-world applications and compared it against state-of-the-art VM-based code protection tools. 
+This significantly increases the diversity of the program behavior, 
+making it much harder for an attacker to reuse knowledge obtained from other programs to attack the target application. 
+We have evaluated our approach on a set of real-world applications 
+and compared it against state-of-the-art VM-based code protection tools.
 Experimental results show that DCVP provides stronger protection (measured by the how likely a virtual instruction within two segments is mapped to the same native code or handler) at the cost of little extract overhead.
-
-\FIXME{I deleted your future work sentences because I have no idea of what is talking about.}
-
-
-%In this paper, we have introduced the internals of code virtualized obfuscation
-%and the process of reverse analyzing a VM-obfuscated program.
-%Although such obfuscation poses a great obstacle to an analyst,
-%the presence of \textit{analysis knowlege} can ease the work of the analyst.
-%To mitigate the effect of reuse of \textit{analysis knowlege},
-%we present DCVP, which disables the \textit{analysis knowlege} by randomizing the semantics of bytecode instructions.
-%Furthermore, DCVP partitions the generated virtual instructions into several parts, each been encoded differently.
-%This defeats the attempts to infer the semantics of bytecode instructions based on the non-uniform frequencies of \textit{opcodes}. Our evaluations show that DCVP is effective for mitigating the effect of reuse of \textit{analysis knowlege}.
-%As future work, we plan to: (1) use existing virtual instructions to switch the HAT instead of the specific \texttt{switch\underline{ }HAT} for sake of the stealthiness of the switching;
-%(2) work on data flow obfuscation to defeat semantics-based de-obfuscation.
-
 % Start of "Sample References" section
 
 

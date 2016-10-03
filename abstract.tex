@@ -6,7 +6,7 @@ approaches use a fixed set of virtual instructions and bytecode interpreters
 across programs. This, however, opens up a security hole where an experienced
 attacker can use knowledge extracted from other programs to quickly uncover
 the mapping between virtual instructions and native code for applications
-protected under the same scheme. In this paper, we propose a novel VM-code
+protected under the same scheme. In this paper, we propose a novel VM-based code
 obfuscation system to address this problem. The core idea of our approach is
 to obfuscate the mapping between the opcodes of bytecode instructions and
 their semantics. We achieve this by partitioning each protected code region
@@ -18,6 +18,6 @@ diversity of the program behavior. As a result, the knowledge of bytecode to
 native code mappings obtained from other programs is unlikely to be useful
 for a new program. We evaluate our approach on a set of real-world
 applications and compare it against two state-of-the-art VM-based code
-obfuscation approaches. Experimental results show that our simple approach is effective, 
+obfuscation approaches. Experimental results show that our simple approach is effective,
 which provides stronger protection at the cost of little extra overhead.
 \end{abstract}

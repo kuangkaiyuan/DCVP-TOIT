@@ -15,7 +15,7 @@
 
 % Package to generate and customize Algorithm as per ACM style
 
-\usepackage[colorlinks,bookmarksopen,bookmarksnumbered,citecolor=blue,urlcolor=red]{hyperref}
+\usepackage[colorlinks,bookmarksopen,bookmarksnumbered,citecolor=black,urlcolor=black]{hyperref}
 \usepackage{array}
 \usepackage{graphicx}
 %\usepackage{caption}
@@ -161,7 +161,7 @@ Correspondence author's Email addresses: Dingyi Fang,
 %Northwest University, Xi¡¯an, China, 710127.
 Email: dyf@nwu.edu.cn.
 
-Author's addresses: G. Li, K. Kuang, Z. Tang, D. Fang, X. Chen,
+Author's addresses: Z. Tang, K. Kuang, G. Li, D. Fang, X. Chen,
 School of Information Science and Technology,
 Northwest University, Xi¡¯an, China, 710127;
 D. Ma, Department of Computer and Information Science,
@@ -410,12 +410,7 @@ Semantics are encapsulated in \texttt{handlers}, and the work of extracting them
 form \texttt{handlers} is tedious and error-prone.
 Therefore, it will save analysts lots of time and energy if the semantics of bytecode instructions are accessible,
 
-\begin{figure}[!t]
-\centering
-\includegraphics[width=0.5\textwidth]{fig/opfreq.pdf}
-\caption{The average frequencies of \textit{opcodes}. The horizontal axis specifies the \textit{opcodes}.}
-\label{fig:freq}
-\end{figure}
+
 
 without bothering to trace and analyze the \texttt{handlers} once again.
 DCVP's aim is to frustrate this attempt and force analysts to analyze the \texttt{handlers} every time.
@@ -435,7 +430,7 @@ the same semantics is $\left(\frac{1}{H}\right)^{N-1}$.
 Therefore, we believe DCVP can effectively remove the \textit{analysis knowlege}
 about the semantics of bytecode instructions.
 
-We also put the four target programs (Table~\ref{tab:statistics}) together 
+We also put the four target programs (Table~\ref{tab:statistics}) together
 and count the average frequencies of \textit{opcodes}.
 We take the obfuscated programs with 1, 2, 4, 8, 16, and 32 partitions for comparison.
 The results are presented in figure \ref{fig:freq}.
@@ -484,13 +479,18 @@ We use Pin~\cite{pin} to count the number of the dynamically executed instructio
 \end{tabnote}
 \end{table}
 
-
+\begin{figure}[!t]
+\centering
+\includegraphics[width=0.5\textwidth]{fig/opfreq.pdf}
+\caption{The average frequencies of \textit{opcodes}. The horizontal axis specifies the \textit{opcodes}.}
+\label{fig:freq}
+\end{figure}
 
 \begin{figure}[t]
 \centering
 \begin{minipage}[t]{0.32\linewidth}
 \centering
-\includegraphics[width=0.9\textwidth]{fig/filesize.pdf}
+\includegraphics[width=1\textwidth]{fig/filesize.pdf}
 \caption{The impact on code size (KB) of DCVP. The file size slightly increased with the increase of number of partitions}
 \label{fig:filesize}
 \end{minipage}
@@ -499,14 +499,14 @@ We use Pin~\cite{pin} to count the number of the dynamically executed instructio
 \begin{minipage}[t]{0.32\linewidth}
 %\begin{figure}[t]
 \centering
-\includegraphics[width=0.9\textwidth]{fig/runtime.pdf}
+\includegraphics[width=1\textwidth]{fig/runtime.pdf}
 \caption{The impact on runtime performance ($\mu$s) of DCVP with different partitions.}
 \label{fig:runtime}
 \end{minipage}
 \hspace{0.005\textwidth}
 \begin{minipage}[t]{0.32\linewidth}
 \centering
-\includegraphics[width=0.9\textwidth]{fig/avg_runtime.pdf}
+\includegraphics[width=1\textwidth]{fig/avg_runtime.pdf}
 \caption{The average runtime overhead per dynamically executed critical instruction.}
 \label{fig:avgruntime}
 \end{minipage}
@@ -650,7 +650,8 @@ and preventing from quick and large scale reverse analyses,
 which is orthogonal to the above approaches and is complementary to them.
 
 
-Has been also have some deobfuscation techniques of code virtualization was put forward. Representative like,
+Some deobfuscation techniques of code virtualization have been also put forward in recent years.
+The representative researches are as follows, 
 Sharif et al.~\cite{sharif2009automatic} used dynamic data-flow and taint analysis to identify data buffers
 containing the bytecode program and extract the syntactic and semantic information about the bytecode instructions.
 Coogan et al.~\cite{coogan2011deobfuscation} proposed an approach to identify instructions that related to system calls, and automatically extract an approximate dynamic trace of the original code.
@@ -699,7 +700,7 @@ Experimental results show that DCVP provides stronger protection (measured by th
 
 % Acknowledgments
 \begin{acks}
-This work was partial supported by projects of the National Natural Science Foundation of China (No. 61373177, No. 61572402),
+This work was partial supported by projects of the National Natural Science Foundation of China (No. 61373177, No. 61572402, No. 61672427),
 the Key Project of Chinese Ministry of Education (No. 211181),
 the International Cooperation Foundation of Shaanxi Province, China (No. 2013KW01-02, No. 2015KW-003, No. 2016KW-034),
 the China Postdoctoral Science Foundation (grant No. 2012M521797),
